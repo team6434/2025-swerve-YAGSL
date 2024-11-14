@@ -2,6 +2,10 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+/* TODO - drivetrain field relative off 
+use f3 and find all "drive(" with case sensative on
+change all true field relative to off. */ 
+
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
@@ -31,7 +35,7 @@ public class RobotContainer
   // Replace with CommandPS4Controller or CommandJoystick if needed
   final         CommandXboxController driverXbox = new CommandXboxController(0);
   // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+  private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve"));
   // Applies deadbands and inverts controls because joysticks
   // are back-right positive while robot
@@ -56,12 +60,12 @@ public class RobotContainer
   // are back-right positive while robot
   // controls are front-left positive
   // left stick controls translation
-  // right stick controls the desired angle NOT angular rotation
-  Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-      () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-      () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-      () -> driverXbox.getRightX(),
-      () -> driverXbox.getRightY());
+  // right stick controls the desired angle NOT angular rotation TODO
+  // Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
+  //     () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+  //     () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+  //     () -> driverXbox.getRightX(),
+  //     () -> driverXbox.getRightY());
 
   // Applies deadbands and inverts controls because joysticks
   // are back-right positive while robot
@@ -71,7 +75,7 @@ public class RobotContainer
   Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
       () -> MathUtil.applyDeadband(driverXbox.getLeftY() * -1, OperatorConstants.LEFT_Y_DEADBAND),
       () -> MathUtil.applyDeadband(driverXbox.getLeftX() * -1, OperatorConstants.LEFT_X_DEADBAND),
-      () -> driverXbox.getRightX() * -1);
+      () -> driverXbox.getRightX() * -1); //TODO -1 might equal turn speed
 
   Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
       () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
@@ -121,7 +125,7 @@ public class RobotContainer
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(Commands.none());
       drivebase.setDefaultCommand(
-          !RobotBase.isSimulation() ? driveFieldOrientedDirectAngle : driveFieldOrientedDirectAngleSim);
+          !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
     }
   }
 
