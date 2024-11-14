@@ -18,8 +18,7 @@ public class AutoBalanceCommand extends Command
   private final SwerveSubsystem swerveSubsystem;
   private final PIDController   controller;
 
-  public AutoBalanceCommand(SwerveSubsystem swerveSubsystem)
-  {
+  public AutoBalanceCommand(SwerveSubsystem swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
     controller = new PIDController(1.0, 0.0, 0.0);
     controller.setTolerance(1);
