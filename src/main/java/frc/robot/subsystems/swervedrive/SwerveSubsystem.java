@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.Constants.AutonConstants;
+import frc.robot.Constants.AutoConstants;
 import java.io.File;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
@@ -52,7 +52,7 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Swerve drive object.
    */
-  private final SwerveDrive         swerveDrive;
+  private final SwerveDrive swerveDrive;
   /**
    * AprilTag field layout.
    */
@@ -61,10 +61,11 @@ public class SwerveSubsystem extends SubsystemBase
    * Enable vision odometry updates while driving.
    */
   private final boolean visionDriveTest = false;
+  
   /**
    * PhotonVision class to keep an accurate odometry.
    */
-  private       Vision  vision;
+  private Vision vision;
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -161,9 +162,9 @@ public class SwerveSubsystem extends SubsystemBase
         this::getRobotVelocity, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
         this::setChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
         new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                                         AutonConstants.TRANSLATION_PID,
+                                         AutoConstants.TRANSLATION_PID,
                                          // Translation PID constants
-                                         AutonConstants.ANGLE_PID,
+                                         AutoConstants.ANGLE_PID,
                                          // Rotation PID constants
                                          4.5,
                                          // Max module speed, in m/s

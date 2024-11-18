@@ -8,21 +8,32 @@ change all true field relative to off. */
 
 package frc.robot;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import java.io.File;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -32,11 +43,17 @@ import java.io.File;
 public class RobotContainer
 {
 
+  // Drivetrain
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  final         CommandXboxController driverXbox = new CommandXboxController(0);
-  // The robot's subsystems and commands are defined here...
-  private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
+  final CommandXboxController driverXbox = new CommandXboxController(0);
+
+  // Swerve Module
+  private final SwerveSubsystem drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve"));
+
+  // Autonomous
+  SendableChooser<Command> autoChooser = new SendableChooser<>();
+
   // Applies deadbands and inverts controls because joysticks
   // are back-right positive while robot
   // controls are front-left positive
@@ -91,10 +108,16 @@ public class RobotContainer
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
-  public RobotContainer()
-  {
+  public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+    autoChooser.setDefaultOption("Auto 1", null); // Set location for path weaver files 
+    autoChooser.addOption("Auto 2", null);
+
+    Shuffleboard.getTab("General").add(autoChooser);
+
+    drivebase.getPose();
   }
 
   /**
@@ -104,10 +127,8 @@ public class RobotContainer
    * {@link CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
    * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
    */
-  private void configureBindings()
-  {
-    if (DriverStation.isTest())
-    {
+  private void configureBindings() {
+    if (DriverStation.isTest()) {
       driverXbox.b().whileTrue(drivebase.sysIdDriveMotorCommand());
       driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.y().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
@@ -117,8 +138,7 @@ public class RobotContainer
       driverXbox.rightBumper().onTrue(Commands.none());
       drivebase.setDefaultCommand(
           !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
-    } else
-    {
+    } else {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
       driverXbox.b().whileTrue(
@@ -135,24 +155,46 @@ public class RobotContainer
     }
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand()
-  {
-    // An example command will be run in autonomous
-    return drivebase.getAutonomousCommand("New Auto");
+  public Command getAutonomousCommand() {
+    // return drivebase.driveToPose(new Pose2d(1, 0, new Rotation2d(0))); // TODO test auto. should rotate to/or 90 degrees
+
+    try{
+        // Load the path you want to follow using its name in the GUI
+        PathPlannerPath path = PathPlannerPath.fromPathFile("C:/Users/jas/Documents/FRC/Code/2024/2025-swerve-YAGSL/src/main/java/frc/robot/PathPlanner/deploy/pathplanner/paths/Drive1Meter");
+
+        // Create a path following command using AutoBuilder. This will also trigger event markers.
+        return AutoBuilder.followPath(path);
+    } catch (Exception e) {
+        DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+        return Commands.none();
+    }
   }
 
-  public void setDriveMode()
-  {
+  public void setDriveMode() {
     configureBindings();
   }
 
-  public void setMotorBrake(boolean brake)
-  {
+  public void setMotorBrake(boolean brake) {
     drivebase.setMotorBrake(brake);
   }
+
+  // public Command loadPathplannerTrajectory(String filename, boolean resetOdometry){
+  //   Trajectory trajectory;
+
+  //   try{
+  //     // get the directory name where the trajectory path is located
+  //     Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(filename);
+  //     // build the trajectory from PathweaverJson file
+  //     trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+
+  //     return AutoBuilder.followPath(path);
+  //   }
+  //   catch(IOException exception){
+  //     DriverStation.reportError("unableto open trajectory file "+filename, exception.getStackTrace());
+
+  //     System.out.println("Unable to read from file"+filename );
+
+  //     return new InstantCommand();  // do nothing command
+  //   }
+  // }
 }
