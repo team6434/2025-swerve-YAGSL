@@ -73,9 +73,15 @@ public class RobotContainer
   // left stick controls translation
   // right stick controls the angular velocity of the robot
   Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-      () -> MathUtil.applyDeadband(driverXbox.getLeftY() * -1, OperatorConstants.LEFT_Y_DEADBAND),
-      () -> MathUtil.applyDeadband(driverXbox.getLeftX() * -1, OperatorConstants.LEFT_X_DEADBAND),
-      () -> driverXbox.getRightX() * -1); //TODO -1 might equal turn speed
+      () -> MathUtil.applyDeadband(driverXbox.getLeftY() * -0.6, OperatorConstants.LEFT_Y_DEADBAND),
+      () -> MathUtil.applyDeadband(driverXbox.getLeftX() * -0.6, OperatorConstants.LEFT_X_DEADBAND),
+      () -> driverXbox.getRightX() * -0.75); //TODO -1 might equal turn speed
+
+      /** ---- Colson Wheel Speeds ----
+       * M1 - 0.7
+       * MPC - 1
+       * VIP Field - drive - 0.6, turn - 0.75
+       */
 
   Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
       () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
@@ -117,7 +123,7 @@ public class RobotContainer
       driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
       driverXbox.b().whileTrue(
           Commands.deferredProxy(() -> drivebase.driveToPose(
-                                     new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
+                                     new Pose2d(new Translation2d(1, 0), Rotation2d.fromDegrees(0)))
                                 ));
       driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
       driverXbox.start().whileTrue(Commands.none());

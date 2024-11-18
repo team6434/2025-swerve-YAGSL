@@ -220,8 +220,7 @@ public class SwerveSubsystem extends SubsystemBase
    * @param tolerance Tolerance in degrees.
    * @return Command to turn the robot to the speaker.
    */
-  public Command aimAtSpeaker(double tolerance)
-  {
+  public Command aimAtSpeaker(double tolerance) {
     SwerveController controller = swerveDrive.getSwerveController();
     return run(
         () -> {
@@ -305,7 +304,7 @@ public class SwerveSubsystem extends SubsystemBase
     return run(() -> {
 
       Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-                                                                                 translationY.getAsDouble()), 0.8); // TODO scalar is speed multipl
+                                                                                 translationY.getAsDouble()), 0.8);
       // Make the robot move
       driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
                                                                       headingX.getAsDouble(),
@@ -521,7 +520,7 @@ public class SwerveSubsystem extends SubsystemBase
     swerveDrive.setChassisSpeeds(chassisSpeeds);
   }
 
-  /**
+  /*
    * Post the trajectory to the field.
    *
    * @param trajectory The trajectory to post.
