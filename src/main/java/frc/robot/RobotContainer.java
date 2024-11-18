@@ -157,11 +157,12 @@ public class RobotContainer
 
   public Command getAutonomousCommand() {
     // return drivebase.driveToPose(new Pose2d(1, 0, new Rotation2d(0))); // TODO test auto. should rotate to/or 90 degrees
-
-    try{
+    
+    // return drivebase.getAutonomousCommand("1Meter");
+    
+    try {
         // Load the path you want to follow using its name in the GUI
-        PathPlannerPath path = PathPlannerPath.fromPathFile("C:/Users/jas/Documents/FRC/Code/2024/2025-swerve-YAGSL/src/main/java/frc/robot/PathPlanner/deploy/pathplanner/paths/Drive1Meter");
-
+        PathPlannerPath path = PathPlannerPath.fromPathFile("1Meter");
         // Create a path following command using AutoBuilder. This will also trigger event markers.
         return AutoBuilder.followPath(path);
     } catch (Exception e) {
