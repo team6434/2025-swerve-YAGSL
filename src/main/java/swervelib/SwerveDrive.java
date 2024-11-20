@@ -1365,4 +1365,9 @@ public class SwerveDrive
     return velocity;
   }
 
+public void autonomousAngularVelocityCorrection() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'autonomousAngularVelocityCorrection'");
+}
+
 }

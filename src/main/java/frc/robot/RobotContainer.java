@@ -77,17 +77,6 @@ public class RobotContainer
   // are back-right positive while robot
   // controls are front-left positive
   // left stick controls translation
-  // right stick controls the desired angle NOT angular rotation TODO
-  // Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-  //     () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-  //     () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-  //     () -> driverXbox.getRightX(),
-  //     () -> driverXbox.getRightY());
-
-  // Applies deadbands and inverts controls because joysticks
-  // are back-right positive while robot
-  // controls are front-left positive
-  // left stick controls translation
   // right stick controls the angular velocity of the robot
   Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
       () -> MathUtil.applyDeadband(driverXbox.getLeftY() * -0.6, OperatorConstants.LEFT_Y_DEADBAND),
@@ -118,6 +107,8 @@ public class RobotContainer
     Shuffleboard.getTab("General").add(autoChooser);
 
     drivebase.getPose();
+
+    drivebase.setMaximumSpeed(0.1);
   }
 
   /**
@@ -162,7 +153,7 @@ public class RobotContainer
     
     try {
         // Load the path you want to follow using its name in the GUI
-        PathPlannerPath path = PathPlannerPath.fromPathFile("1Meter");
+        PathPlannerPath path = PathPlannerPath.fromPathFile("FancyPath");
         // Create a path following command using AutoBuilder. This will also trigger event markers.
         return AutoBuilder.followPath(path);
     } catch (Exception e) {
@@ -178,24 +169,4 @@ public class RobotContainer
   public void setMotorBrake(boolean brake) {
     drivebase.setMotorBrake(brake);
   }
-
-  // public Command loadPathplannerTrajectory(String filename, boolean resetOdometry){
-  //   Trajectory trajectory;
-
-  //   try{
-  //     // get the directory name where the trajectory path is located
-  //     Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(filename);
-  //     // build the trajectory from PathweaverJson file
-  //     trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-
-  //     return AutoBuilder.followPath(path);
-  //   }
-  //   catch(IOException exception){
-  //     DriverStation.reportError("unableto open trajectory file "+filename, exception.getStackTrace());
-
-  //     System.out.println("Unable to read from file"+filename );
-
-  //     return new InstantCommand();  // do nothing command
-  //   }
-  // }
 }
