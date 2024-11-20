@@ -4,11 +4,9 @@
 
 package frc.robot.subsystems.swervedrive;
 
-import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -53,6 +51,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
   private final boolean visionDriveTest = false;
   private Vision vision;
+  public boolean slowDriveDB = false;
 
   public SwerveSubsystem(File directory) {
     // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
@@ -513,6 +512,16 @@ public class SwerveSubsystem extends SubsystemBase {
   public void postTrajectory(Trajectory trajectory)
   {
     swerveDrive.postTrajectory(trajectory);
+  }
+
+  // Sets maximum speed set slower
+  public void slowDrive() {
+    if (slowDriveDB = true) { // Slow drive on.
+      setMaximumSpeed(0.2);
+      slowDriveDB = false;
+    } else { // Slow drive off.
+      setMaximumSpeed(Constants.MAX_SPEED);
+    }
   }
 
   /**

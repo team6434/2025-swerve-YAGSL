@@ -137,7 +137,7 @@ public class RobotContainer
                                      new Pose2d(new Translation2d(1, 0), Rotation2d.fromDegrees(0)))
                                 ));
       driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
-      driverXbox.start().whileTrue(Commands.none());
+      driverXbox.start().onTrue((Commands.runOnce(drivebase::slowDrive)));
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(Commands.none());
