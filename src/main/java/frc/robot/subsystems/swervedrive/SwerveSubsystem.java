@@ -8,6 +8,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
@@ -47,34 +48,13 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
-public class SwerveSubsystem extends SubsystemBase
-{
-
-  /**
-   * Swerve drive object.
-   */
+public class SwerveSubsystem extends SubsystemBase {
   private final SwerveDrive swerveDrive;
-  /**
-   * AprilTag field layout.
-   */
   private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2024Crescendo.loadAprilTagLayoutField();
-  /**
-   * Enable vision odometry updates while driving.
-   */
   private final boolean visionDriveTest = false;
-  
-  /**
-   * PhotonVision class to keep an accurate odometry.
-   */
   private Vision vision;
 
-  /**
-   * Initialize {@link SwerveDrive} with the directory provided.
-   *
-   * @param directory Directory of swerve drive config files.
-   */
-  public SwerveSubsystem(File directory)
-  {
+  public SwerveSubsystem(File directory) {
     // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
     //  In this case the gear ratio is 12.8 motor revolutions per wheel rotation.
     //  The encoder resolution per motor revolution is 1 per motor revolution.
@@ -178,13 +158,18 @@ public class SwerveSubsystem extends SubsystemBase
           // This will flip the path being followed to the red side of the field.
           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
           var alliance = DriverStation.getAlliance();
-          return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+          if (alliance.isPresent()) {
+            return alliance.get() == DriverStation.Alliance.Red;
+          } else {
+            return false;
+          }
         },
-        this // Reference to this subsystem to set requirements
-                                  );
+        this // Reference to this subsystem to set requirements TODO 
+    );
+    // TODO test pp holonomics
+    // new PPHolonomicDriveController(AutoConstants.TRANSLATION_PID, AutoConstants.ANGLE_PID, 0.1, swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters());
     
-    //Preload PathPlanner Path finding 
-    // IF USING CUSTOM PATHFINDER ADD BEFORE THIS LINE
+    //Preload PathPlanner Path finding
     PathfindingCommand.warmupCommand().schedule();
   }
 
