@@ -421,7 +421,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * The primary method for controlling the drivebase.  Takes a {@link Translation2d} and a rotation rate, and
+   * The primary method for controlling the drivetrain.  Takes a {@link Translation2d} and a rotation rate, and
    * calculates and commands module states accordingly.  Can use either open-loop or closed-loop velocity control for
    * the wheel velocities.  Also has field- and robot-relative modes, which affect how the translation vector is used.
    *
@@ -572,7 +572,7 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Gets the current yaw angle of the robot, as reported by the swerve pose estimator in the underlying drivebase.
+   * Gets the current yaw angle of the robot, as reported by the swerve pose estimator in the underlying drivetrain.
    * Note, this is not the raw gyro reading, this may be corrected from calls to resetOdometry().
    *
    * @return The yaw angle
