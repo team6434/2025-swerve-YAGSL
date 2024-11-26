@@ -517,7 +517,7 @@ public class SwerveSubsystem extends SubsystemBase {
   // Sets maximum speed set slower
   public void slowDrive() {
     if (slowDriveDB = true) { // Slow drive on.
-      setMaximumSpeed(0.2);
+      setMaximumSpeed(Constants.SLOW_SPEED);
       slowDriveDB = false;
     } else { // Slow drive off.
       setMaximumSpeed(Constants.MAX_SPEED);

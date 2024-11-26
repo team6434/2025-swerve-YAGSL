@@ -9,20 +9,14 @@ change all true field relative to off. */
 package frc.robot;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.List;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -30,7 +24,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -111,7 +104,7 @@ public class RobotContainer
 
     drivebase.getPose();
 
-    drivebase.setMaximumSpeed(0.1);
+    drivebase.setMaximumSpeed(Constants.MAX_SPEED);
   }
 
   /**
@@ -156,10 +149,10 @@ public class RobotContainer
     
     try {
         // Load the path you want to follow using its name in the GUI
-        PathPlannerPath path = PathPlannerPath.fromPathFile("FancyPath"); // Following single path
-
+        PathPlannerPath path = PathPlannerPath.fromPathFile("1MeterDiagonal"); // Following single path 
         // Create a path following command using AutoBuilder. This will also trigger event markers.
         return AutoBuilder.followPath(path);
+        // return new PathPlannerAuto("");
     } catch (Exception e) {
         DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
         return Commands.none();
