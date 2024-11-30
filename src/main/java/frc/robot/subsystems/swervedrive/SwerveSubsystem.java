@@ -163,10 +163,8 @@ public class SwerveSubsystem extends SubsystemBase {
             return false;
           }
         },
-        this // Reference to this subsystem to set requirements TODO 
+        this
     );
-    // TODO test pp holonomics
-    // new PPHolonomicDriveController(AutoConstants.TRANSLATION_PID, AutoConstants.ANGLE_PID, 0.1, swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters());
     
     //Preload PathPlanner Path finding
     PathfindingCommand.warmupCommand().schedule();
@@ -514,10 +512,10 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.postTrajectory(trajectory);
   }
 
-  // Sets maximum speed set slower
+  // Sets maximum speed set slower TODO i dont understand. help ;-;
   public void slowDrive() {
     if (slowDriveDB = true) { // Slow drive on.
-      setMaximumSpeed(Constants.SLOW_SPEED);
+      setMaximumSpeed(0.2);
       slowDriveDB = false;
     } else { // Slow drive off.
       setMaximumSpeed(Constants.MAX_SPEED);

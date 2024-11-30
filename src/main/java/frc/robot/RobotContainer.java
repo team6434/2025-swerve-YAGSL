@@ -30,6 +30,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ControllerRumble;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.subsystems.LED;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -46,6 +47,8 @@ public class RobotContainer
   // Swerve Module
   private final SwerveSubsystem drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve"));
+
+  private final LED LED = new LED();
 
   // Autonomous
   SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -134,7 +137,7 @@ public class RobotContainer
                                 ));
       driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
       driverXbox.start().whileTrue(Commands.none());
-      driverXbox.back().whileTrue(Commands.none());
+      driverXbox.back().onTrue(Commands.runOnce(LED::setRainbow, LED).repeatedly());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(new ControllerRumble(driverXbox, 0.5, 1));
       drivebase.setDefaultCommand(
