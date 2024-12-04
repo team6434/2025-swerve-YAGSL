@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -80,13 +81,7 @@ public class RobotContainer
   Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
       () -> MathUtil.applyDeadband(driverXbox.getLeftY() * -1, OperatorConstants.LEFT_Y_DEADBAND),
       () -> MathUtil.applyDeadband(driverXbox.getLeftX() * -1, OperatorConstants.LEFT_X_DEADBAND),
-      () -> driverXbox.getRightX() * -1); //TODO -1 might equal turn speed
-
-      /** ---- Colson Wheel Speeds ----
-       * M1 - 0.7
-       * MPC - 1
-       * VIP Field - drive - 0.6, turn - 0.75
-       */
+      () -> driverXbox.getRightX() * -1);
 
   Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
       () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
@@ -104,6 +99,7 @@ public class RobotContainer
     autoChooser.addOption("Auto 2", null);
 
     Shuffleboard.getTab("General").add(autoChooser);
+    SmartDashboard.putBoolean("SlowDrive", drivebase.slowDriveDB);
 
     drivebase.getPose();
 
@@ -136,7 +132,7 @@ public class RobotContainer
                                      new Pose2d(new Translation2d(1, 0), Rotation2d.fromDegrees(0)))
                                 ));
       driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
-      driverXbox.start().whileTrue(Commands.none());
+      driverXbox.start().onTrue(Commands.parallel(Commands.runOnce(drivebase::slowDriveToggle, drivebase), new ControllerRumble(driverXbox, 0.2, 0.5)));
       driverXbox.back().onTrue(Commands.runOnce(LED::setRainbow, LED).repeatedly());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(new ControllerRumble(driverXbox, 0.5, 1));
@@ -146,10 +142,6 @@ public class RobotContainer
   }
 
   public Command getAutonomousCommand() {
-    // return drivebase.driveToPose(new Pose2d(1, 0, new Rotation2d(0))); // TODO test auto. should rotate to/or 90 degrees
-    
-    // return drivebase.getAutonomousCommand("1Meter");
-    
     try {
         // Load the path you want to follow using its name in the GUI
         PathPlannerPath path = PathPlannerPath.fromPathFile("1MeterDiagonal"); // Following single path 

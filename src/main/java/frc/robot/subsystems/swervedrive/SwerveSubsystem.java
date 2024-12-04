@@ -118,11 +118,16 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic()
   {
+
+    this.slowDriveUpdate();
+
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
       swerveDrive.updateOdometry();
       vision.updatePoseEstimation(swerveDrive);
+
+
     }
   }
 
@@ -512,11 +517,14 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.postTrajectory(trajectory);
   }
 
+  public void slowDriveToggle() {
+    slowDriveDB = !slowDriveDB;
+  }
+
   // Sets maximum speed set slower TODO i dont understand. help ;-;
-  public void slowDrive() {
+  public void slowDriveUpdate() {
     if (slowDriveDB = true) { // Slow drive on.
       setMaximumSpeed(0.2);
-      slowDriveDB = false;
     } else { // Slow drive off.
       setMaximumSpeed(Constants.MAX_SPEED);
     }
