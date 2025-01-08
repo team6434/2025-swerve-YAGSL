@@ -11,9 +11,11 @@ package frc.robot;
 import java.io.File;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,7 +24,6 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,9 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ControllerRumble;
 import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
-import frc.robot.commands.swervedrive.drivebase.SlowDriveToggle;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
-import frc.robot.subsystems.LED;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -49,8 +48,6 @@ public class RobotContainer
   // Swerve Module
   private final SwerveSubsystem drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve"));
-
-  private final LED LED = new LED();
 
   // Autonomous
   SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -82,7 +79,13 @@ public class RobotContainer
   Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
       () -> MathUtil.applyDeadband(driverXbox.getLeftY() * -1, OperatorConstants.LEFT_Y_DEADBAND),
       () -> MathUtil.applyDeadband(driverXbox.getLeftX() * -1, OperatorConstants.LEFT_X_DEADBAND),
-      () -> driverXbox.getRightX() * -1);
+      () -> driverXbox.getRightX() * -1); //TODO -1 might equal turn speed
+
+      /** ---- Colson Wheel Speeds ----
+       * M1 - 0.7
+       * MPC - 1
+       * VIP Field - drive - 0.6, turn - 0.75
+       */
 
   Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
       () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
@@ -100,11 +103,10 @@ public class RobotContainer
     autoChooser.addOption("Auto 2", null);
 
     Shuffleboard.getTab("General").add(autoChooser);
-    SmartDashboard.putBoolean("SlowDrive", drivebase.slowDriveDB);
 
     drivebase.getPose();
 
-    drivebase.setMaximumSpeed(Constants.MAX_SPEED);
+    drivebase.setMaximumSpeed(0.1);
   }
 
   /**
@@ -121,20 +123,20 @@ public class RobotContainer
       driverXbox.y().whileTrue(drivebase.driveToDistanceCommand(1.0, 0.2));
       driverXbox.start().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.back().whileTrue(drivebase.centerModulesCommand());
-      driverXbox.leftBumper().onTrue(new SlowDriveToggle(drivebase));
+      driverXbox.leftBumper().onTrue(Commands.none());
       driverXbox.rightBumper().onTrue(Commands.none());
       drivebase.setDefaultCommand(
           !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
     } else {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
+      // driverXbox.x().onTrue(Commands.runOnce(drivebase::slowDriveToggle)); //addFakeVisionReading
       driverXbox.b().whileTrue(
           Commands.deferredProxy(() -> drivebase.driveToPose(
                                      new Pose2d(new Translation2d(1, 0), Rotation2d.fromDegrees(0)))
                                 ));
       driverXbox.y().whileTrue(drivebase.aimAtSpeaker(2));
-      driverXbox.start().onTrue(Commands.parallel(Commands.runOnce(drivebase::slowDriveToggle, drivebase), new ControllerRumble(driverXbox, 0.2, 0.5)));
-      driverXbox.back().onTrue(Commands.runOnce(LED::setRainbow, LED).repeatedly());
+      driverXbox.start().debounce(0.1).toggleOnTrue(Commands.runOnce(drivebase::slowDriveToggle, drivebase));
+      driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
       driverXbox.rightBumper().onTrue(new ControllerRumble(driverXbox, 0.5, 1));
       drivebase.setDefaultCommand(
@@ -145,10 +147,10 @@ public class RobotContainer
   public Command getAutonomousCommand() {
     try {
         // Load the path you want to follow using its name in the GUI
-        PathPlannerPath path = PathPlannerPath.fromPathFile("1MeterDiagonal"); // Following single path 
+        // PathPlannerPath path = PathPlannerPath.fromPathFile("90Degree"); // Following single path 
         // Create a path following command using AutoBuilder. This will also trigger event markers.
-        return AutoBuilder.followPath(path);
-        // return new PathPlannerAuto("");
+        // return AutoBuilder.followPath(path);
+        return new PathPlannerAuto("AutoTest");
     } catch (Exception e) {
         DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
         return Commands.none();

@@ -24,6 +24,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -118,17 +119,16 @@ public class SwerveSubsystem extends SubsystemBase {
   @Override
   public void periodic()
   {
-
-    this.slowDriveUpdate();
+    // this.slowDriveUpdate();
 
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
     {
       swerveDrive.updateOdometry();
       vision.updatePoseEstimation(swerveDrive);
-
-
     }
+
+    SmartDashboard.putBoolean("Slow Drive", slowDriveDB);
   }
 
   @Override
@@ -517,18 +517,20 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive.postTrajectory(trajectory);
   }
 
-  public void slowDriveToggle() {
+  public void slowDriveToggle() 
+  {
     slowDriveDB = !slowDriveDB;
+    System.out.println("Recived: " + slowDriveDB);
   }
 
-  // Sets maximum speed set slower TODO i dont understand. help ;-;
-  public void slowDriveUpdate() {
-    if (slowDriveDB = true) { // Slow drive on.
-      setMaximumSpeed(0.2);
-    } else { // Slow drive off.
-      setMaximumSpeed(Constants.MAX_SPEED);
-    }
-  }
+  // // Sets maximum speed set slower
+  // public void slowDriveUpdate() {
+  //   if (slowDriveDB = true) { // Slow drive on.
+  //     setMaximumSpeed(Constants.MIN_SPEED);
+  //   } else { // Slow drive off.
+  //     setMaximumSpeed(Constants.MAX_SPEED);
+  //   }
+  // }
 
   /**
    * Resets the gyro angle to zero and resets odometry to the same position, but facing toward 0.
